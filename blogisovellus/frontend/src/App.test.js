@@ -18,8 +18,10 @@ describe('<App />', () => {
     /*await waitForElement(
       () => component.getByText('Foo')
     )*/
-    const login = component.container.querySelector('login-frame')
+    const login = component.container.querySelector('.login-frame')
+    const blogs = component.container.querySelectorAll('.table-frame')
     expect(login).toBeDefined()
+    expect(blogs.length).toBe(0)
   })
 })
 
