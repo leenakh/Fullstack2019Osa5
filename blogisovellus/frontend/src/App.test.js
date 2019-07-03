@@ -1,5 +1,6 @@
 import App from './App'
 import React from 'react'
+import 'jest-dom/extend-expect'
 import { render, waitForElement, cleanup } from '@testing-library/react'
 jest.mock('./services/blogs')
 
@@ -14,12 +15,10 @@ describe('<App />', () => {
     )
     component.debug()
     component.rerender(<App />)
-    await waitForElement(
-      () => {
-        component.getByText('Kirjaudu sisään')
-      }
-    )
-    const login = component.container.getByText('Kirjaudu sisään')
+    /*await waitForElement(
+      () => component.getByText('Foo')
+    )*/
+    const login = component.container.querySelector('login-frame')
     expect(login).toBeDefined()
   })
 })
