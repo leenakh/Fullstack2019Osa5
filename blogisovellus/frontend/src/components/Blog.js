@@ -2,9 +2,15 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 const Vote = (props) => {
+  let text = ''
+  if (props.blog.fans.find(fan => fan === props.username)) {
+    text = 'En tykkää'
+  } else {
+    text = 'Tykkään'
+  }
   return (
     <button className="vote" onClick={props.handleVote}>
-      Tykkää
+      {text}
     </button>
   )
 }
@@ -35,7 +41,7 @@ const Blog = ({ blog, handleVote, handleRemove, username }) => {
           </tr>
           <tr>
             <td className="filled-cell">{blog.title}</td>
-            <td>{blog.likes} tykkäystä<Remove handleRemove={() => handleRemove(blog.id)} blog={blog} username={username} /><Vote handleVote={() => handleVote(blog.id)} /></td>
+            <td>{blog.likes} tykkää<Remove handleRemove={() => handleRemove(blog.id)} blog={blog} username={username} /><Vote blog={blog} username={username} handleVote={() => handleVote(blog.id)} /></td>
           </tr>
         </tbody>
       </table>

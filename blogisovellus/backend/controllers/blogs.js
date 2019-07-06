@@ -39,7 +39,6 @@ blogsRouter.post('/', async (req, res, next) => {
         }
 
         const user = await User.findById(decodedToken.id)
-        console.log(user)
 
         if (body.title === undefined || body.url === undefined) {
             res.status(400).end()
@@ -50,7 +49,8 @@ blogsRouter.post('/', async (req, res, next) => {
                 url: body.url,
                 likes: body.likes === undefined ? 0 : body.likes,
                 user: user._id,
-                username: user.username
+                username: user.username,
+                fans: body.fans === undefined ? [] : body.fans
             })
 
 
@@ -95,7 +95,9 @@ blogsRouter.put('/:id', async (req, res, next) => {
         title: body.title,
         author: body.author,
         url: body.url,
-        likes: body.likes === undefined ? 0 : body.likes
+        likes: body.likes === undefined ? 0 : body.likes,
+        username: body.username,
+        fans: body.fans
     }
     try {
         const updatedBlog = await Blog.findByIdAndUpdate(req.params.id, blog, { new: true })

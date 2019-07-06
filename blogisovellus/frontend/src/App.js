@@ -13,6 +13,7 @@ import useField from './hooks/index'
 const App = () => {
   const [blogs, setBlogs] = useState([])
   const [user, setUser] = useState(null)
+  const [users, setUsers] = useState([])
   const [errorMessage, setErrorMessage] = useState(null)
   const [notification, setNotification] = useState(null)
   const [loginVisible, setLoginVisible] = useState(false)
@@ -47,19 +48,51 @@ const App = () => {
   }, [])
   console.log('render', blogs.length, 'blogs')
 
+  useEffect(() => {
+    console.log('users effect')
+    userService
+      .getAll()
+      .then(initialUsers => {
+        console.log('users promise fulfilled')
+        setUsers(initialUsers)
+      })
+  }, [blogs])
+  console.log('newest user:', users[users.length - 1])
+
   const handleVote = (id) => {
     console.log('Tykätty', id)
-    try {
-      const blogToUpdate = blogs.find(blog => blog.id === id)
-      const newLikes = blogToUpdate.likes + 1
-      const updatedBlog = { ...blogToUpdate, likes: newLikes }
-      blogService
-        .update(blogToUpdate.id, updatedBlog)
-        .then(returnedBlog => {
-          setBlogs(blogs.map(blog => blog.id !== blogToUpdate.id ? blog : returnedBlog))
-        })
-    } catch (error) {
-      console.log('Jotain meni pieleen. :(')
+    const blogToUpdate = blogs.find(blog => blog.id === id)
+    const currentUser = users.find(u => u.username === user.username)
+    console.log('current user:', currentUser)
+    if (blogToUpdate.fans.find(f => f === currentUser.username)) {
+      try {
+        console.log('Tykkäsit jo tästä!')
+        const newLikes = blogToUpdate.likes - 1
+        const newFans = blogToUpdate.fans.filter(f => f !== currentUser.username)
+        const updatedBlog = { ...blogToUpdate, likes: newLikes, fans: newFans }
+        blogService
+          .update(blogToUpdate.id, updatedBlog)
+          .then(returnedBlog => {
+            setBlogs(blogs.map(blog => blog.id !== blogToUpdate.id ? blog : returnedBlog))
+          })
+        //setErrorMessage('Olet jo tykännyt tästä!')
+        //setTimeout(() => { setErrorMessage(null) }, 5000)
+      } catch (exception) {
+        console.log('Pieleen meni.')
+      }
+    } else {
+      try {
+        const newLikes = blogToUpdate.likes + 1
+        const newFans = blogToUpdate.fans.concat(currentUser.username)
+        const updatedBlog = { ...blogToUpdate, likes: newLikes, fans: newFans }
+        blogService
+          .update(blogToUpdate.id, updatedBlog)
+          .then(returnedBlog => {
+            setBlogs(blogs.map(blog => blog.id !== blogToUpdate.id ? blog : returnedBlog))
+          })
+      } catch (error) {
+        console.log('Jotain meni pieleen. :(')
+      }
     }
   }
 
@@ -87,6 +120,7 @@ const App = () => {
       }
       const result = await userService.create(newUser)
       if (result) {
+        setUsers(users.concat(result))
         setNotification('Onnistui!')
         setTimeout(() => { setNotification(null) }, 5000)
         username.reset()
@@ -209,7 +243,7 @@ const App = () => {
           author={author}
           url={url}
         />
-        <button onClick={() => setBlogFormVisible(false)}>Peruuta</button>
+          <button onClick={() => setBlogFormVisible(false)}>Peruuta</button>
         </div>
         <h1>Parhaat nettisivut</h1>
         <div>{rivit}</div>

@@ -23,6 +23,26 @@ describe('<App />', () => {
     expect(login).toBeDefined()
     expect(blogs.length).toBe(0)
   })
+
+  test('renders blogs if user logged in', async () => {
+
+    const user = {
+      username: 'testiheikki',
+      token: '1234567890',
+      name: 'Heikki'
+    }
+    await window.localStorage.setItem('loggedInUser', JSON.stringify(user))
+
+    const component = render(
+      <App />
+    )
+    component.debug()
+    //component.rerender(<App />)
+    //await waitForElement(() => component.container.querySelector('.table-frame'))
+    const blogs = component.container.querySelectorAll('.table-frame')
+    expect(blogs.length).toBe(2)
+
+  })
 })
 
 
