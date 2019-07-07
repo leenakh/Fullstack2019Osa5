@@ -14,7 +14,7 @@ const unknownEndpoint = (req, res) => {
 
 const errorHandler = (error, req, res, next) => {
     if (error.name === 'CastError' && error.kind === 'ObjectId') {
-        return res.status(400).send({ error: 'Id on väärin muotoiltu.' })
+        return res.status(400).send({ error: 'ID invalid.' })
     } else if (error.name === 'ValidationError' && error.errors.username !== undefined) {
         return res.status(400).json({ error: error.errors.username.message })
     } else if (error.name === 'ValidationError' && error.errors.name !== undefined) {

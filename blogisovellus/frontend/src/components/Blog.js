@@ -1,15 +1,15 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-const Vote = (props) => {
+const Vote = ({ blog, username, handleVote }) => {
   let text = ''
-  if (props.blog.fans.find(fan => fan === props.username)) {
+  if (blog.fans.find(fan => fan === username)) {
     text = 'En tykkää'
   } else {
     text = 'Tykkään'
   }
   return (
-    <button className="vote" onClick={props.handleVote}>
+    <button className="vote" onClick={handleVote}>
       {text}
     </button>
   )

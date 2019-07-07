@@ -14,7 +14,6 @@ const getTokenFrom = req => {
 usersRouter.get('/', async (req, res, next) => {
     try {
         const users = await User.find({}).populate('blogs', { title: 1, author: 1, url: 1, likes: 1 })
-        console.log(users)
         res.json(users.map(user => user.toJSON()))
     } catch (exception) {
         next(exception)
@@ -65,7 +64,7 @@ usersRouter.put('/:id', async (req, res, next) => {
     }
 })
 
-usersRouter.delete('/:id', async (req, res) => {
+usersRouter.delete('/:id', async (req, res, next) => {
     const token = getTokenFrom(req)
     try {
         const decodedToken = jwt.verify(token, process.env.SECRET)
@@ -76,9 +75,11 @@ usersRouter.delete('/:id', async (req, res) => {
         if (user.username === 'admin') {
             await User.findByIdAndRemove(req.params.id)
             res.status(204).end()
+        } else {
+            res.status(401).end()
         }
     } catch (exception) {
-        console.log('Käyttäjän poistaminen ei onnistunut.')
+        next(exception)
     }
 })
 

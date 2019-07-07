@@ -33,7 +33,7 @@ const App = () => {
       const user = JSON.parse(loggedInUserJSON)
       setUser(user)
       blogService.setToken(user.token)
-      console.log('logged in:', user)
+      userService.setToken(user.token)
     }
   }, [])
 
@@ -56,34 +56,28 @@ const App = () => {
         console.log('users promise fulfilled')
         setUsers(initialUsers)
       })
-  }, [blogs])
-  console.log('newest user:', users[users.length - 1])
+  }, [])
 
   const handleVote = (id) => {
-    console.log('Tykätty', id)
     const blogToUpdate = blogs.find(blog => blog.id === id)
-    const currentUser = users.find(u => u.username === user.username)
-    console.log('current user:', currentUser)
-    if (blogToUpdate.fans.find(f => f === currentUser.username)) {
+    const currentUser = user.username
+    if (blogToUpdate.fans.find(f => f === currentUser)) {
       try {
-        console.log('Tykkäsit jo tästä!')
         const newLikes = blogToUpdate.likes - 1
-        const newFans = blogToUpdate.fans.filter(f => f !== currentUser.username)
+        const newFans = blogToUpdate.fans.filter(f => f !== currentUser)
         const updatedBlog = { ...blogToUpdate, likes: newLikes, fans: newFans }
         blogService
           .update(blogToUpdate.id, updatedBlog)
           .then(returnedBlog => {
             setBlogs(blogs.map(blog => blog.id !== blogToUpdate.id ? blog : returnedBlog))
           })
-        //setErrorMessage('Olet jo tykännyt tästä!')
-        //setTimeout(() => { setErrorMessage(null) }, 5000)
       } catch (exception) {
-        console.log('Pieleen meni.')
+        console.log('Tykkäyksen peruminen ei onnistunut.')
       }
     } else {
       try {
         const newLikes = blogToUpdate.likes + 1
-        const newFans = blogToUpdate.fans.concat(currentUser.username)
+        const newFans = blogToUpdate.fans.concat(currentUser)
         const updatedBlog = { ...blogToUpdate, likes: newLikes, fans: newFans }
         blogService
           .update(blogToUpdate.id, updatedBlog)
@@ -91,7 +85,7 @@ const App = () => {
             setBlogs(blogs.map(blog => blog.id !== blogToUpdate.id ? blog : returnedBlog))
           })
       } catch (error) {
-        console.log('Jotain meni pieleen. :(')
+        console.log('Tykkääminen ei onnistunut.')
       }
     }
   }
@@ -103,8 +97,8 @@ const App = () => {
         await blogService.remove(id)
         setBlogs(blogs.filter(blog => blog.id !== id))
       } catch (exception) {
-        console.log('Jotain meni pieleen. :(')
-        await setErrorMessage('Jotain meni pieleen. :(')
+        console.log('Poistaminen ei onnistunut.')
+        await setErrorMessage('Poistaminen ei onnistunut.')
         setTimeout(() => { setErrorMessage(null) }, 5000)
       }
     }
@@ -148,8 +142,7 @@ const App = () => {
       username.reset()
       password.reset()
     } catch (error) {
-      console.log(error)
-      await setErrorMessage('Käyttäjätunnus tai salasana on virheellinen.', username.value, password.value)
+      await setErrorMessage('Käyttäjätunnus tai salasana on virheellinen.')
       setTimeout(() => { setErrorMessage(null) }, 5000)
     }
   }
@@ -187,12 +180,11 @@ const App = () => {
     author.reset()
     url.reset()
     setBlogFormVisible(false)
-    console.log('Blogia lisätään...', newBlog)
   }
 
-  const Logout = (props) => {
+  const Logout = ({ handleLogout }) => {
     return (
-      <button onClick={props.handleLogout}>Kirjaudu ulos</button>
+      <button onClick={handleLogout}>Kirjaudu ulos</button>
     )
   }
 
@@ -237,12 +229,13 @@ const App = () => {
         <div>
 
         </div>
-        <div style={show}><BlogForm
-          handleAddBlog={handleAddBlog}
-          title={title}
-          author={author}
-          url={url}
-        />
+        <div style={show}>
+          <BlogForm
+            handleAddBlog={handleAddBlog}
+            title={title}
+            author={author}
+            url={url}
+          />
           <button onClick={() => setBlogFormVisible(false)}>Peruuta</button>
         </div>
         <h1>Parhaat nettisivut</h1>

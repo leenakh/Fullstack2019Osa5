@@ -81,7 +81,7 @@ blogsRouter.delete('/:id', async (req, res, next) => {
             await Blog.findByIdAndRemove(req.params.id)
             res.status(204).end()
         } else {
-            return res.status(401).json({ error: 'Et voi poistaa toisen käyttäjän lisäämää kohdetta.' })
+            return res.status(401).json({ error: 'Unauthorized.' })
         }
     } catch (exception) {
         next(exception)
